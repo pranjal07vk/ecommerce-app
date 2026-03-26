@@ -2,6 +2,7 @@ import useProducts from "../../hooks/useProducts";
 import ProductCard from "../../components/ProductCard/ProductCard";
 import { useState } from "react";
 import useDebounce from "../../hooks/useDebounce";
+import { useContext } from "react";
 
 function Products() {
   const { products, loading } = useProducts();
