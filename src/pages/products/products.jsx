@@ -7,7 +7,7 @@ function Products() {
   if (loading) return <h2>Loading...</h2>;
 
   return (
-    <div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
       <h2>All Products</h2>
 
       {products.map((product) => (
