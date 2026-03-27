@@ -3,11 +3,15 @@ import ProductCard from "../../components/ProductCard/ProductCard";
 import { useState } from "react";
 import useDebounce from "../../hooks/useDebounce";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../../context/CartContext";
 
 
 function Products() {
   const { products, loading } = useProducts();
   const navigate = useNavigate();
+  const { cartItems } = useContext(CartContext);
+  
 
   //for searching
   const [search, setSearch] = useState("");
@@ -63,6 +67,23 @@ function Products() {
       <button onClick={() => navigate("/wishlist")}>
         Go to Wishlist
       </button>
+
+      {cartItems.length > 0 && (
+        <button
+          onClick={() => navigate("/checkout")}
+          style={{
+            marginLeft: "10px",
+            padding: "8px 15px",
+            backgroundColor: "green",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Go to Checkout ({cartItems.length} items)
+        </button>
+)}
 
       <div style={{ marginBottom: "20px" }}>
         <input

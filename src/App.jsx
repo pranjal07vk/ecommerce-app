@@ -9,8 +9,8 @@ import Checkout from "./pages/Checkout/Checkout";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+      <BrowserRouter>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:id" element={<ProductDetails />} />
@@ -19,7 +19,8 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </BrowserRouter>
-  );
+);
+
 }
 
 export default App;
