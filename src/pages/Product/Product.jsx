@@ -60,6 +60,10 @@ function Products() {
         Go to Cart
       </button>
 
+      <button onClick={() => navigate("/wishlist")}>
+        Go to Wishlist
+      </button>
+
       <div style={{ marginBottom: "20px" }}>
         <input
           type="text"
