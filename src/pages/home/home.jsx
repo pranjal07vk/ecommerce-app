@@ -35,9 +35,9 @@ function Home() {
       <div style={{ marginTop: "40px" }}>
         <h2>Shop by Category</h2>
         <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "10px" }}>
-          <button onClick={() => navigate("/products")}>Electronics</button>
-          <button onClick={() => navigate("/products")}>Clothing</button>
-          <button onClick={() => navigate("/products")}>Jewelry</button>
+          <button onClick={() => navigate("/products?category=electronics")}>Electronics</button>
+          <button onClick={() => navigate("/products?category=clothing")}>Clothing</button>
+          <button onClick={() => navigate("/products?category=jewelery")}>Jewelery</button>
         </div>
       </div>
 

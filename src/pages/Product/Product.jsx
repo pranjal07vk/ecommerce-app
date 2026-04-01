@@ -1,16 +1,26 @@
 import useProducts from "../../hooks/useProducts";
 import ProductCard from "../../components/ProductCard/ProductCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useDebounce from "../../hooks/useDebounce";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
-
+import { useLocation } from "react-router-dom";
 
 function Products() {
   const { products, loading } = useProducts();
   const navigate = useNavigate();
   const { cartItems } = useContext(CartContext);
+  const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const categoryFromURL = queryParams.get("category");
+
+  useEffect(() => {
+  if (categoryFromURL) {
+    setCategory(categoryFromURL);
+  }
+}, [categoryFromURL]);
   
 
   //for searching
@@ -22,6 +32,8 @@ function Products() {
   const [sort, setSort] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
+  if (loading) return <h2>Loading...</h2>;
+
   if (!products || products.length === 0) {
     return <h2>No products available</h2>;  
   }
@@ -32,11 +44,12 @@ function Products() {
   );
   console.log(products);
 
+  //category filtering
   if (category !== "all") {
-    filteredProducts = filteredProducts.filter(
-      (product) => product.category === category
-    );
-  }
+  filteredProducts = filteredProducts.filter((product) =>
+    product.category.toLowerCase().includes(category.toLowerCase())
+  );
+}
 
   //price-based
   if (priceRange === "0-50") {
@@ -55,8 +68,6 @@ function Products() {
   } else if (sort === "high-low") {
     filteredProducts.sort((a, b) => b.price - a.price);
   }
-
-  if (loading) return <h2>Loading...</h2>;
 
   return (
     <div>
