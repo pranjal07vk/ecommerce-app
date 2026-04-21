@@ -1,28 +1,54 @@
 import { useState, useEffect } from "react";
-import { getProducts } from "../services/api";
+import { getProducts, getCategories, getProductsByCategory } from "../services/api";
 
-function useProducts() {
+function useProducts(category) {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // ✅ Fetch categories once
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // ✅ Fetch products based on category
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProducts();
-        console.log("Fetched products:", data); // DEBUG
+        setLoading(true);
+        setError(null);
 
-        setProducts(data);
-      } catch (error) {
-        console.error("Error fetching products:", error);
+        let productsData;
+
+        if (category && category !== "all") {
+          productsData = await getProductsByCategory(category);
+        } else {
+          productsData = await getProducts();
+        }
+
+        setProducts(productsData);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch products");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [category]);
 
-  return { products, loading };
+  return { products, categories, loading, error };
 }
 
 export default useProducts;

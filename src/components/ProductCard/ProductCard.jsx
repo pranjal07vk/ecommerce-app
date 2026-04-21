@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { CartContext } from "../../context/CartContext";
 import { WishlistContext } from "../../context/WishlistContext";
 import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "../../utils/helpers";
 
 function ProductCard({ product }) {
   const { addToCart } = useContext(CartContext);
@@ -9,37 +10,33 @@ function ProductCard({ product }) {
   const navigate = useNavigate();
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: "10px" }}>
-      <img src={product.image} alt={product.title} width="100" />
+    <div className="card">
+      <div className="text-center mb-4">
+        <img src={product.image} alt={product.title} style={{ height: "150px", objectFit: "contain", margin: "0 auto" }} />
+      </div>
 
-      <h4>{product.title}</h4>
-      <p>₹{product.price}</p>
+      <h4 className="text-xl mb-2" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{product.title}</h4>
+      <p className="text-2xl font-bold mb-4">{formatCurrency(product.price)}</p>
 
-      <button onClick={() => {
-        console.log("Adding:", product);
-        addToCart(product);
-      }}>
-        Add to Cart
-      </button>
+      <div className="flex flex-col gap-2 mt-auto">
+        <button className="btn btn-primary" onClick={() => {
+          console.log("Adding:", product);
+          addToCart(product);
+        }}>
+          Add to Cart
+        </button>
 
-      <button onClick={() => addToWishlist(product)}>
-        ❤️ Wishlist
-      </button>
+        <button className="btn btn-secondary" onClick={() => addToWishlist(product)}>
+          ❤️ Wishlist
+        </button>
 
-      <button
-        onClick={() => navigate(`/products/${product.id}`)}
-        style={{
-          padding: "8px 12px",
-          backgroundColor: "blue",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          marginTop: "10px"
-        }}
-      >
-        View Details
-      </button>
+        <button
+          className="btn btn-success"
+          onClick={() => navigate(`/products/${product.id}`)}
+        >
+          View Details
+        </button>
+      </div>
     </div>
   ); 
 }

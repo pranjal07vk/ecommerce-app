@@ -8,7 +8,6 @@ import { CartContext } from "../../context/CartContext";
 import { useLocation } from "react-router-dom";
 
 function Products() {
-  const { products, loading } = useProducts();
   const navigate = useNavigate();
   const { cartItems } = useContext(CartContext);
   const location = useLocation();
@@ -17,39 +16,39 @@ function Products() {
   const categoryFromURL = queryParams.get("category");
 
   useEffect(() => {
-  if (categoryFromURL) {
-    setCategory(categoryFromURL);
-  }
-}, [categoryFromURL]);
-  
+    if (categoryFromURL) {
+      setCategory(categoryFromURL);
+    } else {
+      setCategory("all");
+    }
+  }, [categoryFromURL]);
 
   //for searching
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  
-  //filter states
   const [category, setCategory] = useState("all");
   const [sort, setSort] = useState("");
   const [priceRange, setPriceRange] = useState("");
 
-  if (loading) return <h2>Loading...</h2>;
+  const { products, categories, loading, error } = useProducts(category);
+
+  // We will handle loading inside the JSX so filters don't disappear
+
+  //error handling
+  if (error) return <h2>{error}</h2>;
 
   if (!products || products.length === 0) {
     return <h2>No products available</h2>;  
   }
 
-  //filter products based on search, category, and price range
-  let filteredProducts = products.filter((product) =>
-    product.title?.toLowerCase().includes(debouncedSearch.toLowerCase())
-  );
-  console.log(products);
+  let filteredProducts = [...products];
 
-  //category filtering
-  if (category !== "all") {
-  filteredProducts = filteredProducts.filter((product) =>
-    product.category.toLowerCase().includes(category.toLowerCase())
-  );
-}
+  if (debouncedSearch) {
+    filteredProducts = filteredProducts.filter((product) =>
+      product.title.toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  }
+
 
   //price-based
   if (priceRange === "0-50") {
@@ -64,39 +63,35 @@ function Products() {
 
   //sorting
   if (sort === "low-high") {
-    filteredProducts.sort((a, b) => a.price - b.price);
+    filteredProducts = [...filteredProducts].sort((a, b) => a.price - b.price);
   } else if (sort === "high-low") {
-    filteredProducts.sort((a, b) => b.price - a.price);
+    filteredProducts = [...filteredProducts].sort((a, b) => b.price - a.price);
   }
 
   return (
-    <div>
-      <button onClick={() => navigate("/cart")}>
-        Go to Cart
-      </button>
-
-      <button onClick={() => navigate("/wishlist")}>
-        Go to Wishlist
-      </button>
-
-      {cartItems.length > 0 && (
-        <button
-          onClick={() => navigate("/checkout")}
-          style={{
-            marginLeft: "10px",
-            padding: "8px 15px",
-            backgroundColor: "green",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Go to Checkout ({cartItems.length} items)
+    <div className="container">
+      <div className="nav-header flex items-center">
+        <button className="btn btn-secondary" onClick={() => navigate("/")}>
+          Home
         </button>
-)}
+        <button className="btn btn-secondary" onClick={() => navigate("/cart")}>
+          Cart
+        </button>
+        <button className="btn btn-secondary" onClick={() => navigate("/wishlist")}>
+          Wishlist
+        </button>
 
-      <div style={{ marginBottom: "20px" }}>
+        {cartItems.length > 0 && (
+          <button
+            className="btn btn-success"
+            onClick={() => navigate("/checkout")}
+          >
+            Checkout ({cartItems.length} items)
+          </button>
+        )}
+      </div>
+
+      <div className="filter-bar">
         <input
           type="text"
           placeholder="Search products..."
@@ -104,42 +99,61 @@ function Products() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="all">All</option>
-          <option value="electronics">Electronics</option>
-          <option value="jewelery">Jewelery</option>
-          <option value="men's clothing">Men</option>
-          <option value="women's clothing">Women</option>
+        {/* category filter */}
+        <select
+          value={category}
+          onChange={(e) => {
+            const selected = e.target.value;
+            setCategory(selected);
+
+            if (selected === "all") {
+              navigate("/products");
+            } else {
+              navigate(`/products?category=${selected}`);
+            }
+          }}
+        >
+          <option value="all">All Categories</option>
+          {categories.map((cat) => (
+            <option key={cat.slug} value={cat.slug}>
+              {cat.name}
+            </option>
+          ))}
         </select>
 
-        <select onChange={(e) => setPriceRange(e.target.value)}>
+        <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)}>
           <option value="">All Prices</option>
-          <option value="0-50">0 - 50</option>
-          <option value="50-100">50 - 100</option>
-          <option value="100-500">100+</option>
+          <option value="0-50">$0 - $50</option>
+          <option value="50-100">$50 - $100</option>
+          <option value="100-500">$100+</option>
         </select>
 
-        <select onChange={(e) => setSort(e.target.value)}>
-          <option value="">Sort</option>
+        <select value={sort} onChange={(e) => setSort(e.target.value)}>
+          <option value="">Sort By</option>
           <option value="low-high">Price Low → High</option>
           <option value="high-low">Price High → Low</option>
         </select>
       </div>
-      
 
-      <h2>All Products</h2>
+      <h2 className="text-3xl mb-4 text-center">
+        {category !== "all" ? `Category: ${category}` : "All Products"}
+      </h2>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
-        {filteredProducts.length === 0 ? (
-          <p>No products found</p>
+      <div className="product-grid">
+        {loading ? (
+          <div className="text-center w-full mt-4 text-xl text-muted">
+            <p>Loading products...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center w-full mt-4 text-muted">
+            <p>No products found matching your criteria.</p>
+          </div>
         ) : (
           filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))
         )}
       </div>
-
-      
     </div>
   );
 }

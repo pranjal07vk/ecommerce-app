@@ -4,40 +4,37 @@ const API = axios.create({
   baseURL: "https://dummyjson.com",
 });
 
-// Get all products
+// helper to transform product
+const transformProduct = (p) => ({
+  id: p.id,
+  title: p.title,
+  price: p.price,
+  description: p.description,
+  category: p.category,
+  image: p.thumbnail,
+  rating: { rate: p.rating, count: 0 },
+});
+
+// ✅ Get all products
 export const getProducts = async () => {
-  const res = await API.get("/products");
-  
-  // transform data to match your existing structure
-  return res.data.products.map((p) => ({
-    id: p.id,
-    title: p.title,
-    price: p.price,
-    description: p.description,
-    category: p.category,
-    image: p.thumbnail, // map thumbnail → image
-    rating: { rate: p.rating, count: 0 } // match your structure
-  }));
+  const res = await API.get("/products?limit=100&skip=0");
+  return res.data.products.map(transformProduct);
 };
 
-// Get single product
+// ✅ Get single product
 export const getProductById = async (id) => {
   const res = await API.get(`/products/${id}`);
-  const p = res.data;
-
-  return {
-    id: p.id,
-    title: p.title,
-    price: p.price,
-    description: p.description,
-    category: p.category,
-    image: p.thumbnail,
-    rating: { rate: p.rating, count: 0 }
-  };
+  return transformProduct(res.data);
 };
 
-// Categories (optional)
+// ✅ Get categories
 export const getCategories = async () => {
   const res = await API.get("/products/categories");
-  return res.data;
+  return res.data; // already array of objects
+};
+
+// ✅ Get products by category (FIXED)
+export const getProductsByCategory = async (category) => {
+  const res = await API.get(`/products/category/${category}`);
+  return res.data.products.map(transformProduct);
 };

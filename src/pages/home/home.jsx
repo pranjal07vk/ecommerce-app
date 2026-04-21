@@ -1,43 +1,59 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getCategories } from "../../services/api";
 
 function Home() {
   const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
-    <div style={{ padding: "20px", textAlign: "center" }}>
+    <div className="container">
       
-      {/* Hero Section */}
-      <h1>Welcome to My Store 🛍️</h1>
-      <p>Find the best products at the best prices</p>
-
-      <button
-        onClick={() => navigate("/products")}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "blue",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-          marginTop: "10px"
-        }}
-      >
-        Explore Products
-      </button>
-
-      {/* Navigation Section */}
-      <div style={{ marginTop: "30px", display: "flex", gap: "10px", justifyContent: "center" }}>
-        <button onClick={() => navigate("/cart")}>Go to Cart</button>
-        <button onClick={() => navigate("/wishlist")}>Go to Wishlist</button>
+      {/* Navigation */}
+      <div className="nav-header">
+        <button className="btn btn-secondary" onClick={() => navigate("/cart")}>Cart</button>
+        <button className="btn btn-secondary" onClick={() => navigate("/wishlist")}>Wishlist</button>
       </div>
 
-      {/* Categories */}
-      <div style={{ marginTop: "40px" }}>
-        <h2>Shop by Category</h2>
-        <div style={{ display: "flex", justifyContent: "center", gap: "15px", marginTop: "10px" }}>
-          <button onClick={() => navigate("/products?category=electronics")}>Electronics</button>
-          <button onClick={() => navigate("/products?category=clothing")}>Clothing</button>
-          <button onClick={() => navigate("/products?category=jewelery")}>Jewelery</button>
+      {/* Hero Section */}
+      <div className="hero">
+        <h1>Welcome to My Store 🛍️</h1>
+        <p>Find the best products at the best prices, delivered right to your door.</p>
+        <button
+          onClick={() => navigate("/products")}
+          className="btn btn-primary text-xl mt-2"
+        >
+          Explore Products
+        </button>
+      </div>
+
+      {/* Dynamic Categories */}
+      <div className="mt-4 text-center">
+        <h2 className="text-3xl mb-4">Shop by Category</h2>
+
+        <div className="category-pills">
+          {categories.map((cat) => (
+            <button
+              key={cat.slug}
+              className="category-pill"
+              onClick={() => navigate(`/products?category=${cat.slug}`)}
+            >
+              {cat.name}
+            </button>
+          ))}
         </div>
       </div>
 
